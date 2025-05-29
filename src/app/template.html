@@ -5,5 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather App</title>
   </head>
-  <body></body>
+  <body>
+    <h1>Weather app</h1>
+    <div class="inputs">
+      <input
+        type="text"
+        id="location"
+        name="location"
+        placeholder="Enter city name..."
+      />
+      <fieldset>
+        <legend>Select temperature units:</legend>
+        <div class="unit">
+          <input type="radio" id="celsius" name="unit" value="c" checked />
+          <label for="celsius">Celsius</label>
+        </div>
+        <div class="unit">
+          <input type="radio" id="fahrenheit" name="unit" value="f" />
+          <label for="fahrenheit">Fahrenheit</label>
+        </div>
+      </fieldset>
+      <button>Get weather!</button>
+    </div>
+    <p class="error-msg">Something went wrong!</p>
+    <div class="content"></div>
+    <footer>
+      <a href="https://github.com/skorzany/">&copy; 2025 Skorzany</a>
+    </footer>
+  </body>
 </html>
