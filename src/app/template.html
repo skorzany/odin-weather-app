@@ -15,20 +15,48 @@
         placeholder="Enter city name..."
       />
       <fieldset>
-        <legend>Select temperature units:</legend>
+        <legend>Select data units:</legend>
         <div class="unit">
-          <input type="radio" id="celsius" name="unit" value="c" checked />
-          <label for="celsius">Celsius</label>
+          <input type="radio" id="metric" name="unit" value="metric" checked />
+          <label for="metric">Metric (&deg;C, km)</label>
         </div>
         <div class="unit">
-          <input type="radio" id="fahrenheit" name="unit" value="f" />
-          <label for="fahrenheit">Fahrenheit</label>
+          <input type="radio" id="us" name="unit" value="us" />
+          <label for="us">US (&deg;F, miles)</label>
         </div>
       </fieldset>
       <button>Get weather!</button>
     </div>
     <p class="error-msg">Something went wrong!</p>
-    <div class="content"></div>
+    <div class="content">
+      <div class="card"></div>
+      <div class="forecast">
+        <h3>3 day forecast:</h3>
+        <ol>
+          <li>
+            <span>Monday</span
+            ><span class="details"
+              >20&deg;<img src="../svg/clear-day.svg" alt="" class="icon-small"
+            /></span>
+          </li>
+          <li>
+            <span>Tuesday</span
+            ><span class="details"
+              >15&deg;<img
+                src="../svg/partly-cloudy-day.svg"
+                alt=""
+                class="icon-small"
+            /></span>
+          </li>
+          <li>
+            <span>Wednesday</span
+            ><span class="details"
+              >10&deg;<img src="../svg/cloudy.svg" alt="" class="icon-small"
+            /></span>
+          </li>
+        </ol>
+      </div>
+    </div>
     <footer>
       <a href="https://github.com/skorzany/">&copy; 2025 Skorzany</a>
     </footer>
