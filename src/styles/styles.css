@@ -52,7 +52,7 @@ h1 {
 .inputs,
 .error-msg,
 .content {
-  width: 25%;
+  width: 20%;
 }
 
 input[type='text'] {
@@ -93,6 +93,7 @@ button {
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   gap: 1rem;
 }
 
@@ -104,26 +105,85 @@ button {
   align-self: center;
 }
 
+.icon-mid {
+  height: 2.5rem;
+  align-self: center;
+}
+
 .icon-large {
+  height: 5rem;
+  align-self: center;
 }
 /* ===== END OF ICONS ===== */
 
 /* ===== MAIN CARD ===== */
 .card {
-  flex: 1;
+  padding: 1rem;
   background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1rem;
+  box-shadow: 3px 3px 5px 1px black;
+  gap: 1.5rem;
+}
+
+.card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.date {
+  color: gray;
+}
+
+.card-main-details {
+  display: flex;
+  font-size: 5rem;
+  gap: 1.5rem;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.card-footer-item {
+  display: flex;
+  width: 50%;
+  padding: 0.5rem;
+  gap: 1rem;
+}
+
+.card-footer-item:first-child {
+  border-right: 1px solid black;
+}
+
+.card-footer-details {
+  min-width: 0;
+}
+
+.card-footer-details > p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* ===== END OF MAIN CARD ===== */
 
 /* ===== FORECAST ===== */
 ol {
   padding-left: 0;
+  box-shadow: 3px 3px 5px 1px black;
+  border-radius: 0.5rem;
 }
 
 li {
   display: flex;
   justify-content: space-between;
-  padding-left: 1rem;
+  padding: 0.15rem 1rem;
   background-color: white;
 }
 
@@ -145,6 +205,7 @@ li:last-child {
   display: flex;
   width: 20%;
   justify-content: space-around;
+  gap: 0.5rem;
 }
 /* ===== END OF FORECAST ===== */
 
