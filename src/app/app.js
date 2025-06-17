@@ -1,3 +1,9 @@
+const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+
+function convertInchesToMm(inches) {
+  return Number((inches * 25.4).toPrecision(1));
+}
+
 function collectInputs() {
   const location = document.getElementById('location').value;
   const unit = document.querySelector('input[type="radio"]:checked').value;
@@ -5,20 +11,39 @@ function collectInputs() {
   return { location, unit };
 }
 
+function displayStatus(status) {
+  const targetElement = document.querySelector('p.error-msg');
+  const msg = Error.isError(status) ? `Error: ${status.message}` : status;
+  targetElement.textContent = msg;
+}
+
+function clearStatus() {
+  document.querySelector('p.error-msg').textContent = '';
+}
+
 async function getWeatherData(inputs) {
   // I have removed the api key for now so no bots would steal it...
-  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=#`;
+  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=BFAR54V3R8J9JKYC7KE2JT5DR`;
   try {
     const data = await fetch(queryTemplate, { mode: 'cors' });
+    if (data.status === 404) {
+      throw new Error('No location provided.');
+    } else if (data.status === 400) {
+      throw new Error(`Invalid location: '${capitalize(inputs.location)}'.`);
+    } else if (data.status !== 200) {
+      throw new Error('Something went wrong.');
+    }
     const json = await data.json();
     json.unit = inputs.unit;
     return json;
   } catch (error) {
-    console.log('err', error);
+    displayStatus(error);
+    return false;
   }
 }
 
 function processOutput(json) {
+  if (!json) return [];
   const [city, region, country] = json.resolvedAddress.split(', ');
   const [today, ...future] = json.days.slice(0, 4);
   // universal data
@@ -44,7 +69,7 @@ function processOutput(json) {
     desc: today.conditions,
     precip:
       generalInfo.unit === 'us'
-        ? Number((today.precip * 25.4).toPrecision(2))
+        ? convertInchesToMm(today.precip)
         : today.precip,
     wind: today.windspeed,
   };
@@ -60,4 +85,10 @@ function processOutput(json) {
   return [generalInfo, todayInfo, ...nextInfo];
 }
 
-export { collectInputs, getWeatherData, processOutput };
+export {
+  collectInputs,
+  displayStatus,
+  getWeatherData,
+  processOutput,
+  clearStatus,
+};
