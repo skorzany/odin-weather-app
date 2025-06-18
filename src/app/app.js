@@ -1,3 +1,6 @@
+import dropletImage from '../svg/precip.svg';
+import windImage from '../svg/wind-pwr.svg';
+
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
 function convertInchesToMm(inches) {
@@ -13,8 +16,7 @@ function collectInputs() {
 
 function displayStatus(status) {
   const targetElement = document.querySelector('p.error-msg');
-  const msg = Error.isError(status) ? `Error: ${status.message}` : status;
-  targetElement.textContent = msg;
+  targetElement.textContent = status;
 }
 
 function clearStatus() {
@@ -23,21 +25,23 @@ function clearStatus() {
 
 async function getWeatherData(inputs) {
   // I have removed the api key for now so no bots would steal it...
-  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=#`;
+  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=BFAR54V3R8J9JKYC7KE2JT5DR`;
+  let data;
   try {
-    const data = await fetch(queryTemplate, { mode: 'cors' });
-    if (data.status === 404) {
-      throw new Error('No location provided.');
-    } else if (data.status === 400) {
-      throw new Error(`Invalid location: '${capitalize(inputs.location)}'.`);
-    } else if (data.status !== 200) {
-      throw new Error('Something went wrong.');
-    }
+    data = await fetch(queryTemplate, { mode: 'cors' });
     const json = await data.json();
     json.unit = inputs.unit;
     return json;
-  } catch (error) {
-    displayStatus(error);
+  } catch {
+    let msg = 'Error: ';
+    if (data.status === 404) {
+      msg += 'No location provided.';
+    } else if (data.status === 400) {
+      msg += `Invalid location: '${capitalize(inputs.location)}'.`;
+    } else {
+      msg += 'Something went wrong.';
+    }
+    displayStatus(msg);
     return false;
   }
 }
@@ -82,7 +86,44 @@ function processOutput(json) {
     temp: day.temp,
   }));
 
-  return [generalInfo, todayInfo, ...nextInfo];
+  return [generalInfo, todayInfo, nextInfo];
+}
+
+async function displayMainCard(generalInfo, todayInfo) {
+  const targetElement = document.querySelector('.content');
+  // TODO: find how to dynamically import specific svg and put it into template
+  // const weatherIcon = await fetch(`../svg/${todayInfo.icon}.svg`);
+  const template = `
+    <div class="card">
+    <div class="card-top">
+      <h2 class="location">${generalInfo.city}</h2>
+      <h3 class="date">${generalInfo.currentDate}</h3>
+      <div class="card-main-details">
+        <img src=${weatherIcon} alt="" class="icon icon-large" />
+        <span class="temp">${todayInfo.temp}&deg;</span>
+      </div>
+      <p>${todayInfo.maxTemp}&deg;/${todayInfo.minTemp}&deg; Odczucie ${todayInfo.feelsLike}&deg;</p>
+      <p>${todayInfo.desc}</p>
+    </div>
+    <div class="card-footer">
+      <div class="card-footer-item">
+        <img src=${dropletImage} alt="" class="icon icon-mid" />
+        <div class="card-footer-details">
+          <p>Opady atmosferyczne</p>
+          <p class="precip">${todayInfo.precip} mm</p>
+        </div>
+      </div>
+      <div class="card-footer-item">
+        <img src=${windImage} alt="" class="icon icon-mid" />
+        <div class="card-footer-details">
+          <p>Wiatr</p>
+          <p class="wind">${todayInfo.wind} km/h</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+  targetElement.innerHTML += template;
 }
 
 export {
@@ -91,4 +132,5 @@ export {
   getWeatherData,
   processOutput,
   clearStatus,
+  displayMainCard,
 };
