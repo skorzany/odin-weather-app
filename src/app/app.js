@@ -48,13 +48,13 @@ async function getWeatherData(inputs) {
 
 function processOutput(json) {
   if (!json) return [];
-  const [city, region, country] = json.resolvedAddress.split(', ');
+  const addressParts = json.resolvedAddress.split(', ');
+  const [addressMain, ...addressRest] = addressParts;
   const [today, ...future] = json.days.slice(0, 4);
   // universal data
   const generalInfo = {
-    city,
-    region,
-    country,
+    addressMain,
+    addressRest: addressRest.join(', '),
     unit: json.unit,
     currentDate: new Date().toLocaleString(undefined, {
       weekday: 'short',
@@ -91,33 +91,35 @@ function processOutput(json) {
 
 async function displayMainCard(generalInfo, todayInfo) {
   const targetElement = document.querySelector('.content');
-  // TODO: find how to dynamically import specific svg and put it into template
-  // const weatherIcon = await fetch(`../svg/${todayInfo.icon}.svg`);
+  const weatherIconModule = await import(`../svg/${todayInfo.icon}.svg`);
+  const weatherIcon = weatherIconModule.default;
+  const weatherIconAlt = `${capitalize(todayInfo.icon).split('-').join(' ')}.`;
   const template = `
-    <div class="card">
+  <div class="card">
     <div class="card-top">
-      <h2 class="location">${generalInfo.city}</h2>
-      <h3 class="date">${generalInfo.currentDate}</h3>
+      <h2 class="location">${generalInfo.addressMain}</h2>
+      <h6 class="region">${generalInfo.addressRest}</h6>
+      <h4 class="date">${generalInfo.currentDate}</h4>
       <div class="card-main-details">
-        <img src=${weatherIcon} alt="" class="icon icon-large" />
+        <img src="${weatherIcon}" alt="${weatherIconAlt}" class="icon icon-large" />
         <span class="temp">${todayInfo.temp}&deg;</span>
       </div>
-      <p>${todayInfo.maxTemp}&deg;/${todayInfo.minTemp}&deg; Odczucie ${todayInfo.feelsLike}&deg;</p>
+      <p>${todayInfo.minTemp}&deg;/${todayInfo.maxTemp}&deg;${'&nbsp;'.repeat(4)}Feels like: ${todayInfo.feelsLike}&deg;</p>
       <p>${todayInfo.desc}</p>
     </div>
     <div class="card-footer">
       <div class="card-footer-item">
-        <img src=${dropletImage} alt="" class="icon icon-mid" />
+        <img src=${dropletImage} alt="Precipitation." class="icon icon-mid" />
         <div class="card-footer-details">
-          <p>Opady atmosferyczne</p>
+          <p>Precip.</p>
           <p class="precip">${todayInfo.precip} mm</p>
         </div>
       </div>
       <div class="card-footer-item">
-        <img src=${windImage} alt="" class="icon icon-mid" />
+        <img src=${windImage} alt="Wind power." class="icon icon-mid" />
         <div class="card-footer-details">
-          <p>Wiatr</p>
-          <p class="wind">${todayInfo.wind} km/h</p>
+          <p>Wind</p>
+          <p class="wind">${todayInfo.wind} ${generalInfo.unit === 'us' ? 'mph' : 'km/h'}</p>
         </div>
       </div>
     </div>

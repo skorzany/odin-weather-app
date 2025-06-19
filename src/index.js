@@ -16,9 +16,10 @@ async function run() {
   const inputs = collectInputs();
   const response = await getWeatherData(inputs);
   const results = processOutput(response);
-  if (results.length) clearStatus();
-  displayMainCard(results[0], results[1]);
-  console.log(results);
+  if (results.length) {
+    clearStatus();
+    displayMainCard(results[0], results[1]);
+  }
 }
 
 btn.addEventListener('click', run);

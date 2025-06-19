@@ -27,7 +27,7 @@
   --icon-small-width: 1.25rem;
   --border-radius-small: 0.5rem;
   --border-radius-large: 1rem;
-  --min-width-main: 300px;
+  --min-width-main: 360px;
   --gap-small: 0.5rem;
   --gap-mid: 1rem;
   --gap-large: 1.5rem;
@@ -138,7 +138,7 @@ button {
 /* ===== SHADOWS ===== */
 ol,
 .card {
-  box-shadow: 3px 3px 5px 1px black;
+  box-shadow: 4px 4px 5px 1px black;
 }
 /* ===== END OF SHADOWS ===== */
 
@@ -162,12 +162,12 @@ ol,
   justify-content: center;
   align-items: center;
   border-radius: var(--border-radius-large);
-  gap: var(--gap-large);
+  gap: var(--gap-mid);
+  text-align: center;
 }
 
 .card-top {
   gap: var(--gap-small);
-  text-align: center;
 }
 
 .date {
@@ -181,7 +181,11 @@ ol,
 
 .card-footer,
 .card-footer-item {
-  justify-content: space-around;
+  justify-content: center;
+}
+
+.card-footer {
+  width: 100%;
 }
 
 .card-footer-item {
@@ -196,12 +200,6 @@ ol,
 
 .card-footer-details {
   min-width: 0;
-}
-
-.card-footer-details > p {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 /* ===== END OF MAIN CARD ===== */
 
@@ -254,6 +252,7 @@ a {
   text-decoration: none;
 }
 
+a,
 a:visited {
   color: inherit;
 }
