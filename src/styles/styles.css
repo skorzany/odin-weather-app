@@ -27,10 +27,10 @@
   --icon-small-width: 1.25rem;
   --border-radius-small: 0.5rem;
   --border-radius-large: 1rem;
-  --min-width-main: 360px;
   --gap-small: 0.5rem;
   --gap-mid: 1rem;
   --gap-large: 1.5rem;
+  --min-content-width: 360px;
   --card-color: white;
   --bg-color: rebeccapurple;
   --error-color: red;
@@ -64,7 +64,7 @@ body {
 }
 
 body > * {
-  min-width: var(--min-width-main);
+  min-width: var(--min-content-width);
 }
 
 .inputs,
@@ -197,10 +197,6 @@ ol,
 .card-footer-item:first-child {
   border-right: 1px solid black;
 }
-
-.card-footer-details {
-  min-width: 0;
-}
 /* ===== END OF MAIN CARD ===== */
 
 /* ===== FORECAST ===== */
@@ -211,6 +207,7 @@ li,
 
 ol {
   padding-left: 0;
+  margin-top: var(--gap-small);
   border-radius: var(--border-radius-small);
 }
 
@@ -236,7 +233,7 @@ li:last-child {
 
 .details {
   width: 20%;
-  justify-content: space-around;
+  justify-content: space-between;
   gap: var(--gap-small);
 }
 /* ===== END OF FORECAST ===== */

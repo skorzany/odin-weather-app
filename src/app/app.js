@@ -3,6 +3,8 @@ import windImage from '../svg/wind-pwr.svg';
 
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
+const clearContent = () => document.querySelector('.content').replaceChildren();
+
 function convertInchesToMm(inches) {
   return Number((inches * 25.4).toPrecision(1));
 }
@@ -112,7 +114,7 @@ async function displayMainCard(generalInfo, todayInfo) {
         <img src=${dropletImage} alt="Precipitation." class="icon icon-mid" />
         <div class="card-footer-details">
           <p>Precip.</p>
-          <p class="precip">${todayInfo.precip} mm</p>
+          <p>${todayInfo.precip} mm</p>
         </div>
       </div>
       <div class="card-footer-item">
@@ -128,11 +130,36 @@ async function displayMainCard(generalInfo, todayInfo) {
   targetElement.innerHTML += template;
 }
 
+function displayForecast(generalInfo, forecastArr) {
+  const targetElement = document.querySelector('.content');
+  const container = document.createElement('div');
+  container.classList.add('forecast');
+  const header = document.createElement('h3');
+  header.textContent = `3-day forecast for ${generalInfo.addressMain}:`;
+  container.appendChild(header);
+  const list = document.createElement('ol');
+  forecastArr.forEach(async (forecastObj) => {
+    const weatherIconModule = await import(`../svg/${forecastObj.icon}.svg`);
+    const weatherIcon = weatherIconModule.default;
+    const altText = capitalize(forecastObj.icon).split('-').join(' ');
+    const template = `
+    <li>
+      <span>${forecastObj.dayName}</span><span class="details"><img src="${weatherIcon}" alt="${altText}" class="icon icon-small" />${forecastObj.temp.toFixed(1)}&deg;</span>
+    </li>
+    `;
+    list.insertAdjacentHTML('beforeend', template);
+  });
+  container.appendChild(list);
+  targetElement.appendChild(container);
+}
+
 export {
+  clearContent,
   collectInputs,
   displayStatus,
   getWeatherData,
   processOutput,
   clearStatus,
   displayMainCard,
+  displayForecast,
 };

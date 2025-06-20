@@ -1,15 +1,18 @@
 import './styles/reset.css';
 import './styles/styles.css';
 import {
+  clearContent,
   collectInputs,
   displayStatus,
   getWeatherData,
   processOutput,
   clearStatus,
   displayMainCard,
+  displayForecast,
 } from './app/app';
 
 const btn = document.querySelector('button');
+const input = document.getElementById('location');
 
 async function run() {
   displayStatus('Processing...');
@@ -18,8 +21,13 @@ async function run() {
   const results = processOutput(response);
   if (results.length) {
     clearStatus();
-    displayMainCard(results[0], results[1]);
+    clearContent();
+    await displayMainCard(results[0], results[1]);
+    displayForecast(results[0], results[2]);
   }
 }
 
+window.onload = () => {
+  input.value = '';
+};
 btn.addEventListener('click', run);
