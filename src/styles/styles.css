@@ -1,21 +1,21 @@
 @font-face {
-  font-family: 'Roboto';
+  font-family: 'robotoitalic';
   src:
-    url('../fonts/Roboto-Italic.woff2') format('woff2'),
-    url('../fonts/Roboto-Italic.woff') format('woff');
+    url('../fonts/roboto-italic-variablefont_wdthwght-webfont.woff2')
+      format('woff2'),
+    url('../fonts/roboto-italic-variablefont_wdthwght-webfont.woff')
+      format('woff');
   font-weight: normal;
-  font-style: italic;
-  font-display: swap;
+  font-style: normal;
 }
 
 @font-face {
-  font-family: 'Roboto';
+  font-family: 'robotoregular';
   src:
-    url('../fonts/Roboto-Regular.woff2') format('woff2'),
-    url('../fonts/Roboto-Regular.woff') format('woff');
+    url('../fonts/roboto-variablefont_wdthwght-webfont.woff2') format('woff2'),
+    url('../fonts/roboto-variablefont_wdthwght-webfont.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
 }
 
 :root {
@@ -33,7 +33,9 @@
   --min-content-width: 360px;
   --card-color: white;
   --bg-color: rebeccapurple;
-  --error-color: red;
+  --status-color: red;
+  --alt-color: gray;
+  --prompt-color: lightGray;
   --footer-font-size: 0.75rem;
   --card-big-font-size: 5rem;
 }
@@ -68,24 +70,30 @@ body > * {
 }
 
 .inputs,
-.error-msg,
+.status,
 .content {
   width: 20%;
 }
 
 h1,
-.error-msg {
+.status {
   text-align: center;
 }
 
-input[type='text'] {
+input[type='text'],
+.prompt {
+  width: 100%;
   border-radius: var(--border-radius-large);
+}
+
+input[type='text'] {
   border: none;
   padding: 0.5rem 1rem;
 }
 
 .unit,
 .unit *,
+.prompt,
 button {
   cursor: pointer;
 }
@@ -104,13 +112,32 @@ button {
   min-width: 30%;
 }
 
-.error-msg {
-  color: var(--error-color);
+.status {
+  color: var(--status-color);
+  height: 0;
 }
 
 .content {
   flex: 1;
   justify-content: space-around;
+}
+
+.input-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.prompt {
+  display: none;
+  position: absolute;
+  top: 1.25rem;
+  z-index: -1;
+  background-color: var(--prompt-color);
+  padding: 1.75rem 1rem 0.5rem;
+}
+
+.prompt:hover {
+  background-color: var(--alt-color);
 }
 
 /* ===== END OF MAIN LAYOUT ===== */
@@ -171,7 +198,7 @@ ol,
 }
 
 .date {
-  color: gray;
+  color: var(--alt-color);
 }
 
 .card-main-details {
