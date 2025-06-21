@@ -5,6 +5,7 @@ import {
   collectInputs,
   displayStatus,
   getWeatherData,
+  provideLocation,
   processOutput,
   clearStatus,
   displayMainCard,
@@ -13,6 +14,7 @@ import {
 
 const btn = document.querySelector('button');
 const input = document.getElementById('location');
+const prompt = document.querySelector('.prompt');
 
 async function run() {
   displayStatus('Processing...');
@@ -30,4 +32,14 @@ async function run() {
 window.onload = () => {
   input.value = '';
 };
+input.addEventListener('focus', () => {
+  prompt.style.display = 'block';
+});
+input.addEventListener('blur', () => {
+  prompt.style.display = 'none';
+});
+prompt.addEventListener('mousedown', () => {
+  displayStatus('Locating...');
+  provideLocation(input);
+});
 btn.addEventListener('click', run);

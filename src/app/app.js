@@ -17,12 +17,12 @@ function collectInputs() {
 }
 
 function displayStatus(status) {
-  const targetElement = document.querySelector('p.error-msg');
-  targetElement.textContent = status;
+  const targetElement = document.querySelector('.status');
+  targetElement.textContent = status || '';
 }
 
 function clearStatus() {
-  document.querySelector('p.error-msg').textContent = '';
+  document.querySelector('.status').textContent = '';
 }
 
 async function getWeatherData(inputs) {
@@ -45,6 +45,20 @@ async function getWeatherData(inputs) {
     }
     displayStatus(msg);
     return false;
+  }
+}
+
+function provideLocation() {
+  const success = (position) => {
+    document.getElementById('location').value =
+      `${position.coords.latitude}, ${position.coords.longitude}`;
+    displayStatus();
+  };
+  const error = () => displayStatus('Unable to retrieve your location.');
+  if (!navigator.geolocation) {
+    displayStatus('Geolocation is not supported by your browser.');
+  } else {
+    navigator.geolocation.getCurrentPosition(success, error);
   }
 }
 
@@ -158,6 +172,7 @@ export {
   collectInputs,
   displayStatus,
   getWeatherData,
+  provideLocation,
   processOutput,
   clearStatus,
   displayMainCard,

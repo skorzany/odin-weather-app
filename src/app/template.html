@@ -8,12 +8,16 @@
   <body>
     <h1>Weather app</h1>
     <div class="inputs">
-      <input
-        type="text"
-        id="location"
-        name="location"
-        placeholder="Enter city name..."
-      />
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="location"
+          name="location"
+          placeholder="Enter city name..."
+          autocomplete="off"
+        />
+        <div class="prompt">Use my location (experimental)</div>
+      </div>
       <fieldset>
         <legend>Select data units:</legend>
         <div class="unit">
@@ -27,7 +31,7 @@
       </fieldset>
       <button>Get weather!</button>
     </div>
-    <p class="error-msg"></p>
+    <p class="status"></p>
     <div class="content"></div>
     <footer>
       <a href="https://github.com/skorzany/">&copy; 2025 Skorzany</a>
