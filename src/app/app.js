@@ -5,58 +5,72 @@ const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
 const clearContent = () => document.querySelector('.content').replaceChildren();
 
-function convertInchesToMm(inches) {
-  return Number((inches * 25.4).toPrecision(1));
+const convertInchesToMm = (inches) => Number((inches * 25.4).toPrecision(2));
+
+function showLoader(msg = '') {
+  document.querySelector('.loader').style.display = 'grid';
+  document.querySelector('.status').textContent = msg;
+}
+
+function hideLoader(msg = '') {
+  document.querySelector('.loader').style.display = 'none';
+  document.querySelector('.status').textContent = msg;
+}
+
+function showPrompt() {
+  document.querySelector('.prompt').style.display = 'block';
+}
+
+function hidePrompt() {
+  document.querySelector('.prompt').style.display = 'none';
 }
 
 function collectInputs() {
   const location = document.getElementById('location').value;
   const unit = document.querySelector('input[type="radio"]:checked').value;
-
   return { location, unit };
-}
-
-function displayStatus(status) {
-  const targetElement = document.querySelector('.status');
-  targetElement.textContent = status || '';
-}
-
-function clearStatus() {
-  document.querySelector('.status').textContent = '';
 }
 
 async function getWeatherData(inputs) {
   // I have removed the api key for now so no bots would steal it...
-  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=#`;
+  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=BFAR54V3R8J9JKYC7KE2JT5DR`;
+  const msg = [];
   let data;
+
+  showLoader();
   try {
     data = await fetch(queryTemplate, { mode: 'cors' });
     const json = await data.json();
     json.unit = inputs.unit;
     return json;
   } catch {
-    let msg = 'Error: ';
+    msg.push('Error: ');
     if (data.status === 404) {
-      msg += 'No location provided.';
+      msg.push('No location provided.');
     } else if (data.status === 400) {
-      msg += `Invalid location: '${capitalize(inputs.location)}'.`;
+      msg.push(`Invalid location: '${capitalize(inputs.location)}'.`);
     } else {
-      msg += 'Something went wrong.';
+      msg.push('Something went wrong.');
     }
-    displayStatus(msg);
     return false;
+  } finally {
+    hideLoader(msg.join(''));
   }
 }
 
 function provideLocation() {
   const success = (position) => {
+    hideLoader();
     document.getElementById('location').value =
       `${position.coords.latitude}, ${position.coords.longitude}`;
-    displayStatus();
   };
-  const error = () => displayStatus('Unable to retrieve your location.');
+  const error = () => {
+    hideLoader('Unable to retrieve your location.');
+  };
+
+  showLoader();
   if (!navigator.geolocation) {
-    displayStatus('Geolocation is not supported by your browser.');
+    hideLoader('Geolocation is not supported by your browser.');
   } else {
     navigator.geolocation.getCurrentPosition(success, error);
   }
@@ -107,9 +121,9 @@ function processOutput(json) {
 
 async function displayMainCard(generalInfo, todayInfo) {
   const targetElement = document.querySelector('.content');
+  const weatherIconAlt = `${capitalize(todayInfo.icon).split('-').join(' ')}.`;
   const weatherIconModule = await import(`../svg/${todayInfo.icon}.svg`);
   const weatherIcon = weatherIconModule.default;
-  const weatherIconAlt = `${capitalize(todayInfo.icon).split('-').join(' ')}.`;
   const template = `
   <div class="card">
     <div class="card-top">
@@ -169,12 +183,12 @@ function displayForecast(generalInfo, forecastArr) {
 
 export {
   clearContent,
+  showPrompt,
+  hidePrompt,
   collectInputs,
-  displayStatus,
   getWeatherData,
   provideLocation,
   processOutput,
-  clearStatus,
   displayMainCard,
   displayForecast,
 };
