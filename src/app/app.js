@@ -1,11 +1,8 @@
 import dropletImage from '../svg/precip.svg';
 import windImage from '../svg/wind-pwr.svg';
-
-const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+import { capitalize, convertInchesToMm } from './utils';
 
 const clearContent = () => document.querySelector('.content').replaceChildren();
-
-const convertInchesToMm = (inches) => Number((inches * 25.4).toPrecision(2));
 
 function showLoader(msg = '') {
   document.querySelector('.loader').style.display = 'grid';
