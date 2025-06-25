@@ -5,12 +5,12 @@ import { capitalize, convertInchesToMm } from './utils';
 const clearContent = () => document.querySelector('.content').replaceChildren();
 
 function showLoader(msg = '') {
-  document.querySelector('.loader').style.display = 'grid';
+  document.querySelector('.loader').style.visibility = 'visible';
   document.querySelector('.status').textContent = msg;
 }
 
 function hideLoader(msg = '') {
-  document.querySelector('.loader').style.display = 'none';
+  document.querySelector('.loader').style.visibility = 'hidden';
   document.querySelector('.status').textContent = msg;
 }
 
@@ -62,12 +62,12 @@ function provideLocation() {
       `${position.coords.latitude}, ${position.coords.longitude}`;
   };
   const error = () => {
-    hideLoader('Unable to retrieve your location.');
+    hideLoader('Error: Unable to retrieve your location.');
   };
 
   showLoader();
   if (!navigator.geolocation) {
-    hideLoader('Geolocation is not supported by your browser.');
+    hideLoader('Error: Geolocation is not supported by your browser.');
   } else {
     navigator.geolocation.getCurrentPosition(success, error);
   }
