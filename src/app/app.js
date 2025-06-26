@@ -2,6 +2,7 @@ import dropletImage from '../svg/precip.svg';
 import windImage from '../svg/wind-pwr.svg';
 import { capitalize, convertInchesToMm } from './utils';
 
+// VIEWER
 const clearContent = () => document.querySelector('.content').replaceChildren();
 
 function showLoader(msg = '') {
@@ -20,100 +21,6 @@ function showPrompt() {
 
 function hidePrompt() {
   document.querySelector('.prompt').style.display = 'none';
-}
-
-function collectInputs() {
-  const location = document.getElementById('location').value;
-  const unit = document.querySelector('input[type="radio"]:checked').value;
-  return { location, unit };
-}
-
-async function getWeatherData(inputs) {
-  // I have removed the api key for now so no bots would steal it...
-  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=#`;
-  const msg = [];
-  let data;
-
-  showLoader();
-  try {
-    data = await fetch(queryTemplate, { mode: 'cors' });
-    const json = await data.json();
-    json.unit = inputs.unit;
-    return json;
-  } catch {
-    msg.push('Error: ');
-    if (data.status === 404) {
-      msg.push('No location provided.');
-    } else if (data.status === 400) {
-      msg.push(`Invalid location: '${capitalize(inputs.location)}'.`);
-    } else {
-      msg.push('Something went wrong.');
-    }
-    return false;
-  } finally {
-    hideLoader(msg.join(''));
-  }
-}
-
-function provideLocation() {
-  const success = (position) => {
-    hideLoader();
-    document.getElementById('location').value =
-      `${position.coords.latitude}, ${position.coords.longitude}`;
-  };
-  const error = () => {
-    hideLoader('Error: Unable to retrieve your location.');
-  };
-
-  showLoader();
-  if (!navigator.geolocation) {
-    hideLoader('Error: Geolocation is not supported by your browser.');
-  } else {
-    navigator.geolocation.getCurrentPosition(success, error);
-  }
-}
-
-function processOutput(json) {
-  if (!json) return [];
-  const addressParts = json.resolvedAddress.split(', ');
-  const [addressMain, ...addressRest] = addressParts;
-  const [today, ...future] = json.days.slice(0, 4);
-  // universal data
-  const generalInfo = {
-    addressMain,
-    addressRest: addressRest.join(', '),
-    unit: json.unit,
-    currentDate: new Date().toLocaleString(undefined, {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'long',
-      day: '2-digit',
-    }),
-  };
-  // current day
-  const todayInfo = {
-    icon: today.icon,
-    temp: today.temp,
-    maxTemp: today.tempmax,
-    minTemp: today.tempmin,
-    feelsLike: today.feelslike,
-    desc: today.conditions,
-    precip:
-      generalInfo.unit === 'us'
-        ? convertInchesToMm(today.precip)
-        : today.precip,
-    wind: today.windspeed,
-  };
-  // next 3 days
-  const nextInfo = future.map((day) => ({
-    dayName: new Date(day.datetime).toLocaleDateString(undefined, {
-      weekday: 'long',
-    }),
-    icon: day.icon,
-    temp: day.temp,
-  }));
-
-  return [generalInfo, todayInfo, nextInfo];
 }
 
 async function displayMainCard(generalInfo, todayInfo) {
@@ -176,6 +83,102 @@ function displayForecast(generalInfo, forecastArr) {
   });
   container.appendChild(list);
   targetElement.appendChild(container);
+}
+
+// MODEL
+function processOutput(json) {
+  if (!json) return [];
+  const addressParts = json.resolvedAddress.split(', ');
+  const [addressMain, ...addressRest] = addressParts;
+  const [today, ...future] = json.days.slice(0, 4);
+  // universal data
+  const generalInfo = {
+    addressMain,
+    addressRest: addressRest.join(', '),
+    unit: json.unit,
+    currentDate: new Date().toLocaleString(undefined, {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'long',
+      day: '2-digit',
+    }),
+  };
+  // current day
+  const todayInfo = {
+    icon: today.icon,
+    temp: today.temp,
+    maxTemp: today.tempmax,
+    minTemp: today.tempmin,
+    feelsLike: today.feelslike,
+    desc: today.conditions,
+    precip:
+      generalInfo.unit === 'us'
+        ? convertInchesToMm(today.precip)
+        : today.precip,
+    wind: today.windspeed,
+  };
+  // next 3 days
+  const nextInfo = future.map((day) => ({
+    dayName: new Date(day.datetime).toLocaleDateString(undefined, {
+      weekday: 'long',
+    }),
+    icon: day.icon,
+    temp: day.temp,
+  }));
+
+  return [generalInfo, todayInfo, nextInfo];
+}
+
+// CONTROLLER
+function collectInputs() {
+  const location = document.getElementById('location').value;
+  const unit = document.querySelector('input[type="radio"]:checked').value;
+  return { location, unit };
+}
+
+async function getWeatherData(inputs) {
+  // I have removed the api key for now so no bots would steal it...
+  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=BFAR54V3R8J9JKYC7KE2JT5DR`;
+  const msg = [];
+  let data;
+
+  showLoader();
+  try {
+    data = await fetch(queryTemplate, { mode: 'cors' });
+    const json = await data.json();
+    json.unit = inputs.unit;
+    return json;
+  } catch {
+    msg.push('Error: ');
+    if (data.status === 404) {
+      msg.push('No location provided.');
+    } else if (data.status === 400) {
+      msg.push(`Invalid location: '${capitalize(inputs.location)}'.`);
+    } else {
+      msg.push('Something went wrong.');
+    }
+    return false;
+  } finally {
+    hideLoader(msg.join(''));
+  }
+}
+
+function provideLocation() {
+  const success = (position) => {
+    hideLoader();
+    document.getElementById('location').value =
+      `${position.coords.latitude}, ${position.coords.longitude}`;
+  };
+  const error = () => {
+    hideLoader('Error: Unable to retrieve your location.');
+  };
+
+  showLoader();
+  if (!navigator.geolocation) {
+    hideLoader('Error: Geolocation is not supported by your browser.');
+  } else {
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
 }
 
 export {

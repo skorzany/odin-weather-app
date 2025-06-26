@@ -3,14 +3,16 @@ import windImage from '../svg/wind-pwr.svg';
 import capitalize from './utils';
 
 export default class WeatherAppViewer {
-  constructor(weatherData, templateElements) {
-    this.generalInfo = weatherData.generalInfo;
-    this.todayInfo = weatherData.todayInfo;
-    this.forecast = weatherData.forecastArr;
-    this.prompt = templateElements.promptElement;
-    this.loader = templateElements.loaderElement;
-    this.status = templateElements.statusElement;
-    this.content = templateElements.contentElement;
+  constructor({
+    promptElement,
+    loaderElement,
+    statusElement,
+    contentElement,
+  } = {}) {
+    this.prompt = promptElement || document.querySelector('.prompt');
+    this.loader = loaderElement || document.querySelector('.loader');
+    this.status = statusElement || document.querySelector('.status');
+    this.content = contentElement || document.querySelector('.content');
   }
 
   clearContent() {
@@ -35,63 +37,70 @@ export default class WeatherAppViewer {
     this.prompt.style.display = 'none';
   }
 
-  async viewCard() {
-    const weatherIconModule = await import(`../svg/${this.todayInfo.icon}.svg`);
+  async viewCard({ generalInfo, todayWeather } = {}) {
+    const weatherIconModule = await import(`../svg/${todayWeather.icon}.svg`);
     const weatherIcon = weatherIconModule.default;
-    const weatherIconAlt = `${capitalize(this.todayInfo.icon).replace(/-/g, ' ')}.`;
+    const weatherIconAlt = `${capitalize(todayWeather.icon).replace(/-/g, ' ')}.`;
     const template = `
         <div class="card">
             <div class="card-top">
-                <h2 class="location">${this.generalInfo.addressMain}</h2>
-                <h6 class="region">${this.generalInfo.addressRest}</h6>
-                <h4 class="date">${this.generalInfo.currentDate}</h4>
+                <h2 class="location">${generalInfo.addressMain}</h2>
+                <h6 class="region">${generalInfo.addressRest}</h6>
+                <h4 class="date">${generalInfo.currentDate}</h4>
                 <div class="card-main-details">
                     <img src="${weatherIcon}" alt="${weatherIconAlt}" class="icon icon-large" />
-                    <span class="temp">${this.todayInfo.temp}&deg;</span>
+                    <span class="temp">${todayWeather.temp}&deg;</span>
                 </div>
-                <p>${this.todayInfo.minTemp}&deg;/${this.todayInfo.maxTemp}&deg;${'&nbsp;'.repeat(4)}Feels like: ${this.todayInfo.feelsLike}&deg;</p>
-                <p>${this.todayInfo.desc}</p>
+                <p>${todayWeather.minTemp}&deg;/${todayWeather.maxTemp}&deg;${'&nbsp;'.repeat(4)}Feels like: ${todayWeather.feelsLike}&deg;</p>
+                <p>${todayWeather.desc}</p>
             </div>
             <div class="card-footer">
                 <div class="card-footer-item">
                     <img src=${dropletImage} alt="Precipitation." class="icon icon-mid" />
                     <div class="card-footer-details">
                         <p>Precip.</p>
-                        <p>${this.todayInfo.precip} mm</p>
+                        <p>${todayWeather.precip} mm</p>
                     </div>
                 </div>
                 <div class="card-footer-item">
                     <img src=${windImage} alt="Wind power." class="icon icon-mid" />
                     <div class="card-footer-details">
                         <p>Wind</p>
-                        <p class="wind">${this.todayInfo.wind} ${this.generalInfo.unit === 'us' ? 'mph' : 'km/h'}</p>
+                        <p class="wind">${todayWeather.wind} ${generalInfo.unit === 'us' ? 'mph' : 'km/h'}</p>
                     </div>
                 </div>
             </div>
         </div>
     `;
-    this.contentElement.innerHTML = template;
+    this.clearContent();
+    this.content.innerHTML = template;
   }
 
-  viewForecast() {
+  viewForecast({ generalInfo, forecastArr } = {}) {
     const container = document.createElement('div');
     container.classList.add('forecast');
     const header = document.createElement('h3');
-    header.textContent = `3-day forecast for ${this.generalInfo.addressMain}:`;
+    header.textContent = `3-day forecast for ${generalInfo.addressMain}:`;
     container.appendChild(header);
     const list = document.createElement('ol');
-    this.forecast.forEach(async (forecastObj) => {
-      const weatherIconModule = import(`../svg/${forecastObj.icon}.svg`);
+    forecastArr.forEach(async (day) => {
+      const weatherIconModule = import(`../svg/${day.icon}.svg`);
       const weatherIcon = weatherIconModule.default;
-      const altText = capitalize(forecastObj.icon).replace(/-/g, ' ');
+      const altText = capitalize(day.icon).replace(/-/g, ' ');
       const template = `
         <li>
-            <span>${forecastObj.dayName}</span><span class="details"><img src=${weatherIcon} alt=${altText} class="icon icon-small" />${forecastObj.temp.toFixed(1)}&deg;</span>
+            <span>${day.dayName}</span><span class="details"><img src=${weatherIcon} alt=${altText} class="icon icon-small" />${day.temp.toFixed(1)}&deg;</span>
         </li>
       `;
       list.insertAdjacentHTML('beforeend', template);
     });
     container.appendChild(list);
-    this.targetContainer.appendChild(container);
+    this.clearContent();
+    this.content.appendChild(container);
+  }
+
+  async viewAll({ generalInfo, todayWeather, forecastArr } = {}) {
+    await this.viewCard({ generalInfo, todayWeather });
+    this.viewForecast({ generalInfo, forecastArr });
   }
 }
