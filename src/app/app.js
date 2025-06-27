@@ -138,7 +138,7 @@ function collectInputs() {
 
 async function getWeatherData(inputs) {
   // I have removed the api key for now so no bots would steal it...
-  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=BFAR54V3R8J9JKYC7KE2JT5DR`;
+  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=#`;
   const msg = [];
   let data;
 
