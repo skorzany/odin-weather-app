@@ -76,20 +76,22 @@ export default class WeatherAppViewer {
     this.content.innerHTML = template;
   }
 
-  viewForecast({ generalInfo, forecastArr } = {}) {
+  async viewForecast({ generalInfo, forecastArr } = {}) {
     const container = document.createElement('div');
     container.classList.add('forecast');
     const header = document.createElement('h3');
     header.textContent = `3-day forecast for ${generalInfo.addressMain}:`;
     container.appendChild(header);
     const list = document.createElement('ol');
-    forecastArr.forEach(async (day) => {
-      const weatherIconModule = import(`../svg/${day.icon}.svg`);
-      const weatherIcon = weatherIconModule.default;
-      const altText = capitalize(day.icon).replace(/-/g, ' ');
+    const icons = await Promise.all(
+      forecastArr.map((obj) => import(`../svg/${obj.icon}.svg`))
+    );
+    forecastArr.forEach((obj, idx) => {
+      const altText = capitalize(obj.icon).replace(/-/g, ' ');
+      const icon = icons[idx].default;
       const template = `
         <li>
-            <span>${day.dayName}</span><span class="details"><img src=${weatherIcon} alt=${altText} class="icon icon-small" />${day.temp.toFixed(1)}&deg;</span>
+          <span>${obj.dayName}</span><span class="details"><img src="${icon}" alt="${altText}" class="icon icon-small" />${obj.temp.toFixed(1)}&deg;</span>
         </li>
       `;
       list.insertAdjacentHTML('beforeend', template);

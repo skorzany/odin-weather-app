@@ -62,7 +62,7 @@ async function displayMainCard(generalInfo, todayInfo) {
   targetElement.innerHTML += template;
 }
 
-function displayForecast(generalInfo, forecastArr) {
+async function displayForecast(generalInfo, forecastArr) {
   const targetElement = document.querySelector('.content');
   const container = document.createElement('div');
   container.classList.add('forecast');
@@ -70,14 +70,16 @@ function displayForecast(generalInfo, forecastArr) {
   header.textContent = `3-day forecast for ${generalInfo.addressMain}:`;
   container.appendChild(header);
   const list = document.createElement('ol');
-  forecastArr.forEach(async (forecastObj) => {
-    const weatherIconModule = await import(`../svg/${forecastObj.icon}.svg`);
-    const weatherIcon = weatherIconModule.default;
-    const altText = capitalize(forecastObj.icon).split('-').join(' ');
+  const icons = await Promise.all(
+    forecastArr.map((obj) => import(`../svg/${obj.icon}.svg`))
+  );
+  forecastArr.forEach((obj, idx) => {
+    const altText = capitalize(obj.icon).replace(/-/g, ' ');
+    const icon = icons[idx].default;
     const template = `
-    <li>
-      <span>${forecastObj.dayName}</span><span class="details"><img src="${weatherIcon}" alt="${altText}" class="icon icon-small" />${forecastObj.temp.toFixed(1)}&deg;</span>
-    </li>
+      <li>
+        <span>${obj.dayName}</span><span class="details"><img src="${icon}" alt="${altText}" class="icon icon-small" />${obj.temp.toFixed(1)}&deg;</span>
+      </li>
     `;
     list.insertAdjacentHTML('beforeend', template);
   });
@@ -138,7 +140,7 @@ function collectInputs() {
 
 async function getWeatherData(inputs) {
   // I have removed the api key for now so no bots would steal it...
-  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=#`;
+  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=BFAR54V3R8J9JKYC7KE2JT5DR`;
   const msg = [];
   let data;
 
