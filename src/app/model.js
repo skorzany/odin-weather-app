@@ -1,8 +1,8 @@
 import { convertInchesToMm } from './utils';
 
 export default class WeatherData {
-  constructor({ unit, resolvedAddress, daysArr } = {}) {
-    const [today, ...future] = daysArr;
+  constructor({ unit, resolvedAddress, days } = {}) {
+    const [today, ...future] = days;
     this.generalInfo = WeatherData.extractInfo({ unit, resolvedAddress });
     this.todayWeather = WeatherData.extractWeather(unit, { today });
     this.forecast = WeatherData.extractForecast(future);

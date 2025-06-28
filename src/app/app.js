@@ -1,6 +1,7 @@
 import dropletImage from '../svg/precip.svg';
 import windImage from '../svg/wind-pwr.svg';
 import { capitalize, convertInchesToMm } from './utils';
+import WeatherAppViewer from './views';
 
 // VIEWER
 const clearContent = () => document.querySelector('.content').replaceChildren();
@@ -140,7 +141,7 @@ function collectInputs() {
 
 async function getWeatherData(inputs) {
   // I have removed the api key for now so no bots would steal it...
-  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=BFAR54V3R8J9JKYC7KE2JT5DR`;
+  const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${inputs.location}/?unitGroup=${inputs.unit}&key=#`;
   const msg = [];
   let data;
 
@@ -194,3 +195,69 @@ export {
   displayMainCard,
   displayForecast,
 };
+
+class WeatherApp {
+  constructor({ locationElement, geoElement, mainButton, viewer } = {}) {
+    this.locationElement =
+      locationElement || document.getElementById('location');
+    this.geoElement = geoElement || document.querySelector('.prompt');
+    this.mainButton = mainButton || document.querySelector('button');
+    this.viewer = viewer || new WeatherAppViewer();
+    this.data = undefined;
+  }
+
+  collectInputs() {
+    const location = this.locationElement.value;
+    const unit = document.querySelector('input[type="radio"]:checked').value;
+    return [location, unit];
+  }
+
+  async getWeatherData() {
+    const [location, unit] = this.collectInputs();
+    const queryTemplate = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}/?unitGroup=${unit}&key=#`;
+    const msg = [];
+    let data;
+
+    this.viewer.showStatus();
+    try {
+      data = await fetch(queryTemplate, { mode: 'cors' });
+      const json = await data.json();
+      return { unit, resolvedAddress: json.resolvedAddress, days: json.days };
+    } catch {
+      msg.push('Error:');
+      if (data.status === 404) {
+        msg.push('No location provided.');
+      } else if (data.status === 400) {
+        msg.push(`Invalid location: '${capitalize(location)}'.`);
+      } else msg.push('Something went wrong.');
+      return {};
+    } finally {
+      this.viewer.hideStatus(msg.join(' '));
+    }
+  }
+
+  provideLocation() {
+    const success = (position) => {
+      this.viewer.hideStatus();
+      this.locationElement.value = `${position.coords.latitude}, ${position.coords.longitude}`;
+    };
+    const failure = () =>
+      this.viewer.hideStatus('Error: Unable to retrieve your location.');
+
+    this.viewer.showStatus();
+    if (!navigator.geolocation) {
+      this.viewer.hideStatus(
+        'Error: Geolocation is not supported by your browser.'
+      );
+    } else {
+      navigator.geolocation.getCurrentPosition(success, failure);
+    }
+  }
+
+  run() {
+    this.locationElement.addEventListener('focus', this.viewer.showPrompt);
+    this.locationElement.addEventListener('blur', this.viewer.hidePrompt);
+    this.geoElement.addEventListener('mousedown', this.provideLocation);
+    this.mainButton.addEventListener('click', x); // TODO: Add a procedure to serve content
+  }
+}

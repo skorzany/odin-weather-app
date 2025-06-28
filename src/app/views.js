@@ -1,6 +1,6 @@
 import dropletImage from '../svg/precip.svg';
 import windImage from '../svg/wind-pwr.svg';
-import capitalize from './utils';
+import { capitalize } from './utils';
 
 export default class WeatherAppViewer {
   constructor({
