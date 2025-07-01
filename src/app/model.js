@@ -1,52 +1,57 @@
 import { convertInchesToMm } from './utils';
 
-export default class WeatherData {
-  constructor({ unit, resolvedAddress, days } = {}) {
-    const [today, ...future] = days;
-    this.generalInfo = WeatherData.extractInfo({ unit, resolvedAddress });
-    this.todayWeather = WeatherData.extractWeather(unit, { today });
-    this.forecast = WeatherData.extractForecast(future);
-  }
-
+export default class WeatherDataExtractor {
   static extractInfo({ unit, resolvedAddress } = {}) {
-    const addressParts = resolvedAddress.split(', ');
-    const [addressMain, ...addressRest] = addressParts;
-    return {
-      unit,
-      addressMain,
-      addressRest: addressRest.join(', '),
-      currentDate: new Date().toLocaleString(undefined, {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-      }),
-    };
+    try {
+      const addressParts = resolvedAddress.split(', ');
+      const [addressMain, ...addressRest] = addressParts;
+      return {
+        unit,
+        addressMain,
+        addressRest: addressRest.join(', '),
+        currentDate: new Date().toLocaleString(undefined, {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'long',
+          day: '2-digit',
+        }),
+      };
+    } catch {
+      return {};
+    }
   }
 
-  static extractWeather({ dayInfo } = {}, convertPrecip = false) {
-    return {
-      icon: dayInfo.icon,
-      temp: dayInfo.temp,
-      maxTemp: dayInfo.tempmax,
-      minTemp: dayInfo.tempmin,
-      feelsLike: dayInfo.feelslike,
-      desc: dayInfo.conditions,
-      wind: dayInfo.windspeed,
-      precip:
-        convertPrecip === true
-          ? convertInchesToMm(dayInfo.precip)
-          : dayInfo.precip,
-    };
+  static extractWeather({ currentWeather } = {}, convertPrecip = false) {
+    try {
+      return {
+        icon: currentWeather.icon,
+        temp: currentWeather.temp,
+        maxTemp: currentWeather.tempmax,
+        minTemp: currentWeather.tempmin,
+        feelsLike: currentWeather.feelslike,
+        desc: currentWeather.conditions,
+        wind: currentWeather.windspeed.toFixed(1),
+        precip: (convertPrecip
+          ? convertInchesToMm(currentWeather.precip)
+          : currentWeather.precip
+        ).toFixed(1),
+      };
+    } catch {
+      return {};
+    }
   }
 
-  static extractForecast(daysArr = []) {
-    return daysArr.map((day) => ({
-      icon: day.icon,
-      temp: day.temp,
-      dayName: new Date(day.datetime).toLocaleDateString(undefined, {
-        weekday: 'long',
-      }),
-    }));
+  static extractForecast({ days } = {}) {
+    try {
+      return days.map((day) => ({
+        icon: day.icon,
+        temp: day.temp.toFixed(1),
+        dayName: new Date(day.datetime).toLocaleDateString(undefined, {
+          weekday: 'long',
+        }),
+      }));
+    } catch {
+      return [];
+    }
   }
 }
