@@ -7,16 +7,14 @@ export default class WeatherAppViewer {
     promptElement,
     loaderElement,
     statusElement,
-    contentElement,
+    cardElement,
+    forecastElement,
   } = {}) {
     this.prompt = promptElement || document.querySelector('.prompt');
     this.loader = loaderElement || document.querySelector('.loader');
     this.status = statusElement || document.querySelector('.status');
-    this.content = contentElement || document.querySelector('.content');
-  }
-
-  clearContent() {
-    this.content.replaceChildren();
+    this.card = cardElement || document.querySelector('.card');
+    this.forecast = forecastElement || document.querySelector('.forecast');
   }
 
   showStatus(msg = '') {
@@ -44,46 +42,44 @@ export default class WeatherAppViewer {
     const weatherIcon = weatherIconModule.default;
     const weatherIconAlt = `${capitalize(currentWeather.icon).replace(/-/g, ' ')}.`;
     const template = `
-        <div class="card">
-            <div class="card-top">
-                <h2 class="location">${generalInfo.addressMain}</h2>
-                <h6 class="region">${generalInfo.addressRest}</h6>
-                <h4 class="date">${generalInfo.currentDate}</h4>
-                <div class="card-main-details">
-                    <img src="${weatherIcon}" alt="${weatherIconAlt}" class="icon icon-large" />
-                    <span class="temp">${currentWeather.temp}&deg;</span>
-                </div>
-                <p>${currentWeather.minTemp}&deg;/${currentWeather.maxTemp}&deg;${'&nbsp;'.repeat(4)}Feels like: ${currentWeather.feelsLike}&deg;</p>
-                <p>${currentWeather.desc}</p>
-            </div>
-            <div class="card-footer">
-                <div class="card-footer-item">
-                    <img src=${dropletImage} alt="Precipitation." class="icon icon-mid" />
-                    <div class="card-footer-details">
-                        <p>Precip.</p>
-                        <p>${currentWeather.precip} mm</p>
-                    </div>
-                </div>
-                <div class="card-footer-item">
-                    <img src=${windImage} alt="Wind power." class="icon icon-mid" />
-                    <div class="card-footer-details">
-                        <p>Wind</p>
-                        <p class="wind">${currentWeather.wind} ${generalInfo.unit === 'us' ? 'mph' : 'km/h'}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div class="card-top">
+          <h2 class="location">${generalInfo.addressMain}</h2>
+          <h6 class="region">${generalInfo.addressRest}</h6>
+          <h4 class="date">${generalInfo.currentDate}</h4>
+          <div class="card-main-details">
+              <img src="${weatherIcon}" alt="${weatherIconAlt}" class="icon icon-large" />
+              <span class="temp">${currentWeather.temp}&deg;</span>
+          </div>
+          <p>${currentWeather.minTemp}&deg;/${currentWeather.maxTemp}&deg;${'&nbsp;'.repeat(4)}Feels like: ${currentWeather.feelsLike}&deg;</p>
+          <p>${currentWeather.desc}</p>
+      </div>
+      <div class="card-footer">
+          <div class="card-footer-item">
+              <img src=${dropletImage} alt="Precipitation." class="icon icon-mid" />
+              <div class="card-footer-details">
+                  <p>Precip.</p>
+                  <p>${currentWeather.precip} mm</p>
+              </div>
+          </div>
+          <div class="card-footer-item">
+              <img src=${windImage} alt="Wind power." class="icon icon-mid" />
+              <div class="card-footer-details">
+                  <p>Wind</p>
+                  <p class="wind">${currentWeather.wind} ${generalInfo.unit === 'us' ? 'mph' : 'km/h'}</p>
+              </div>
+          </div>
+      </div>
     `;
-    this.content.innerHTML = template;
+    this.card.innerHTML = template;
+    this.card.style.display = 'flex';
   }
 
   async viewForecast({ generalInfo, forecast } = {}) {
     if (Object.keys(generalInfo).length === 0 || forecast.length === 0) return;
-    const container = document.createElement('div');
-    container.classList.add('forecast');
+    this.forecast.replaceChildren();
     const header = document.createElement('h3');
     header.textContent = `${forecast.length}-day forecast for ${generalInfo.addressMain}:`;
-    container.appendChild(header);
+    this.forecast.appendChild(header);
     const list = document.createElement('ol');
     const icons = await Promise.all(
       forecast.map((obj) => import(`../svg/${obj.icon}.svg`))
@@ -98,8 +94,7 @@ export default class WeatherAppViewer {
       `;
       list.insertAdjacentHTML('beforeend', template);
     });
-    container.appendChild(list);
-    this.content.appendChild(container);
+    this.forecast.appendChild(list);
   }
 
   async viewAll({ generalInfo, currentWeather, forecast } = {}) {

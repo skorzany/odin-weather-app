@@ -9,6 +9,24 @@ export default class WeatherApp {
     this.geoElement = geoElement || document.querySelector('.prompt');
     this.mainButton = mainButton || document.querySelector('button');
     this.viewer = viewer || new WeatherAppViewer();
+    // disposable listener functions
+    this.mainFn = () => this.serveWeather();
+    this.geoFn = () => this.provideLocation();
+    this.keyboardFn = (event) => {
+      if (event.key === 'Enter') this.serveWeather();
+    };
+  }
+
+  addDisposableListeners() {
+    this.geoElement.addEventListener('mousedown', this.geoFn);
+    this.mainButton.addEventListener('click', this.mainFn);
+    document.addEventListener('keydown', this.keyboardFn);
+  }
+
+  removeDisposableListeners() {
+    this.geoElement.removeEventListener('mousedown', this.geoFn);
+    this.mainButton.removeEventListener('click', this.mainFn);
+    document.removeEventListener('keydown', this.keyboardFn);
   }
 
   collectInputs() {
@@ -47,22 +65,28 @@ export default class WeatherApp {
   provideLocation() {
     const success = (position) => {
       this.viewer.hideStatus();
+      this.addDisposableListeners();
       this.locationElement.value = `${position.coords.latitude}, ${position.coords.longitude}`;
     };
-    const failure = () =>
+    const failure = () => {
       this.viewer.hideStatus('Error: Unable to retrieve your location.');
+      this.addDisposableListeners();
+    };
 
     this.viewer.showStatus();
+    this.removeDisposableListeners();
     if (!navigator.geolocation) {
       this.viewer.hideStatus(
         'Error: Geolocation is not supported by your browser.'
       );
+      this.addDisposableListeners();
     } else {
       navigator.geolocation.getCurrentPosition(success, failure);
     }
   }
 
   async serveWeather() {
+    this.removeDisposableListeners();
     const response = await this.getWeatherData();
     const convert = response.unit !== 'metric';
     const data = {
@@ -71,20 +95,16 @@ export default class WeatherApp {
       currentWeather: WeatherDataExtractor.extractWeather(response, convert),
     };
     this.viewer.viewAll(data);
+    this.addDisposableListeners();
   }
 
   initialize() {
+    this.addDisposableListeners();
     this.locationElement.addEventListener('focus', () => {
       this.viewer.showPrompt();
     });
     this.locationElement.addEventListener('blur', () => {
       this.viewer.hidePrompt();
-    });
-    this.geoElement.addEventListener('mousedown', () => {
-      this.provideLocation();
-    });
-    this.mainButton.addEventListener('click', () => {
-      this.serveWeather();
     });
   }
 }

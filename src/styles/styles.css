@@ -191,7 +191,6 @@ ol,
 /* ===== END OF SHADOWS ===== */
 
 /* ===== MAIN CARD ===== */
-.card,
 .card-top,
 .card-main-details,
 .card-footer,
@@ -205,6 +204,7 @@ ol,
 }
 
 .card {
+  display: none;
   padding: 1rem;
   background-color: var(--card-color);
   justify-content: center;
