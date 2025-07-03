@@ -22,6 +22,7 @@
   font-family: 'Roboto', Arial, sans-serif;
   font-size: 16px;
   --icon-large-height: 5rem;
+  --icon-large-width: 7.5rem;
   --icon-medium-height: 2.5rem;
   --icon-small-height: 1rem;
   --icon-small-width: 1.25rem;
@@ -86,13 +87,13 @@ h1,
   text-align: center;
 }
 
-input[type='text'],
+#location,
 .prompt {
   width: 100%;
   border-radius: var(--border-radius-large);
 }
 
-input[type='text'] {
+#location {
   border: none;
   padding: 0.5rem 1rem;
 }
@@ -180,6 +181,7 @@ button {
 
 .icon-large {
   height: var(--icon-large-height);
+  width: var(--icon-large-width);
 }
 /* ===== END OF ICONS ===== */
 
