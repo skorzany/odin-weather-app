@@ -82,7 +82,7 @@ export default class WeatherApp {
       this.removeDisposableListeners();
       navigator.geolocation.getCurrentPosition(success, failure, {
         enableHighAccuracy: false,
-        timeout: 5000,
+        timeout: 20000,
         maximumAge: Infinity,
       });
     }
