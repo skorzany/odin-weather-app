@@ -65,8 +65,8 @@ export default class WeatherApp {
   provideLocation() {
     const success = (position) => {
       this.viewer.hideStatus();
-      this.addDisposableListeners();
       this.locationElement.value = `${position.coords.latitude}, ${position.coords.longitude}`;
+      this.addDisposableListeners();
     };
     const failure = () => {
       this.viewer.hideStatus('Error: Unable to retrieve your location.');
@@ -74,14 +74,17 @@ export default class WeatherApp {
     };
 
     this.viewer.showStatus();
-    this.removeDisposableListeners();
     if (!navigator.geolocation) {
       this.viewer.hideStatus(
         'Error: Geolocation is not supported by your browser.'
       );
-      this.addDisposableListeners();
     } else {
-      navigator.geolocation.getCurrentPosition(success, failure);
+      this.removeDisposableListeners();
+      navigator.geolocation.getCurrentPosition(success, failure, {
+        enableHighAccuracy: false,
+        timeout: 5000,
+        maximumAge: Infinity,
+      });
     }
   }
 
